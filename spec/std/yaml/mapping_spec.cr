@@ -40,6 +40,15 @@ class YAMLWithKey
   })
 end
 
+class YAMLWithAny
+  YAML.mapping({
+    obj: YAML::Any,
+  })
+
+  def initialize(@obj)
+  end
+end
+
 describe "YAML mapping" do
   it "parses person" do
     person = YAMLPerson.from_yaml("---\nname: John\nage: 30\n")
@@ -105,5 +114,16 @@ describe "YAML mapping" do
     yaml.key.should eq("foo")
     yaml.value.should eq(1)
     yaml.pull.should eq(2)
+  end
+
+  it "parses YAML with any" do
+    yaml = YAMLWithAny.from_yaml("obj: hello")
+    yaml.obj.as_s.should eq("hello")
+
+    yaml = YAMLWithAny.from_yaml({obj: %w(foo bar)}.to_yaml)
+    yaml.obj[1].as_s.should eq("bar")
+
+    yaml = YAMLWithAny.from_yaml({obj: {foo: :bar}}.to_yaml)
+    yaml.obj["foo"].as_s.should eq("bar")
   end
 end
